@@ -11,6 +11,7 @@ static void *firstMunch(struct Queue *que);
 static void *secondMunch(struct Queue *que);
 static void *writeOutput(struct Queue *que);
 static void *readStream();
+static int checkSizie();
 
 int main(void){
 	pthread_t reader, munch1, munch2, writer;
