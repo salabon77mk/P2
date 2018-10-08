@@ -1,18 +1,22 @@
 #include <semaphore.h>
 
-struct Queue{
-  unsigned int enqueueCount;
-  unsigned int dequeueCount;
-  unsigned int enqueueBlockCount;
-  unsigned int dequeueBlockCount;
-  unsigned int queueState;
-  sem_t mutex;
-  sem_t ready; //don't know if needed
-  char * strings;
+struct Queue {
+    unsigned int head, foot, size;
+    unsigned int capacity;
+    unsigned int enqueueCount;
+    unsigned int dequeueCount;
+    unsigned int enqueueBlockCount;
+    unsigned int dequeueBlockCount;
+    sem_t mutex;
+    sem_t headLock; 
+    sem_t tailLock;
+    char **lines;
 };
 
 
-Queue *CreateStringQueue(int size);
-void EnqueueString(Queue *q, char *string);
-char * DequeueString(Queue *q);
-void PrintQueueStats(Queue *q);
+Queue *CreateStringQueue(unsigned int capacity);
+void EnqueueString(Queue *queue, char *string);
+char * DequeueString(Queue *queue);
+void PrintQueueStats(Queue *queue);
+int IsFull(Queue* queue);
+int IsEmpty(Queue* queue);
