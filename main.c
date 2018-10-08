@@ -54,12 +54,16 @@ void *secondMunch(void *queue){
 }
 
 void *writeOutput(void *queue){
-	char *printMe = DequeueString(que);
-	printf("%s\n", printMe);	
+	struct Queue* queue = (struct * Queue) queue;
+	while(!IsEmpty(queue)){	
+		char *printMe = DequeueString(que);
+		printf("%s\n", printMe);	
+	}
 }
 
 void threadCreateCheck(int val){
-
-
-
+	if(val != 0){
+		printf("Failed thread creation \n");
+		exit(-1);
+	}
 }
