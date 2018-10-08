@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <ctype.h>
+#include "queue.h"
 #include <pthread.h>
 
 #ifndef BUFFER_SIZE
@@ -12,7 +13,6 @@ static void *firstMunch(void *queue);
 static void *secondMunch(void *queue);
 static void *writeOutput(void *queue);
 static void *readStream(void *stream);
-static void checkSize();
 static int checkLineSize();
 static void mallocCheck(struct Queue *queue);
 
@@ -83,9 +83,6 @@ void threadCreateCheck(int val){
 	}
 }
 
-int checkLineSize(){
-
-}
 
 void mallocCheck(struct Queue *queue){
 	if(queue == NULL){
