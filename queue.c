@@ -78,8 +78,8 @@ char* DequeueString(struct Queue* queue) {
 }
 
 void PrintQueueStats(struct Queue* queue) {
-    printf("Successful enqueues: %d\n", queue->enqueueCount);
-    printf("Successful dequeues: %d\n", queue->dequeueCount);
-    printf("Unsuccessful enqueues: %d\n", queue->enqueueBlockedCount);
-    printf("Unsuccessful dequeues: %d\n", queue->dequeueBlockCount);
+    printf("Successful enqueues: %u\n", queue->enqueueCount);
+    printf("Successful dequeues: %u\n", queue->dequeueCount);
+    printf("Unsuccessful enqueues: %u\n", queue->enqueueBlockedCount);
+    printf("Unsuccessful dequeues: %u\n", queue->dequeueBlockCount);
 }
