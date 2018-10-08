@@ -33,15 +33,15 @@ struct Queue *CreateStringQueue(unsigned int capacity){
 
 }
 
-int IsFull(Queue* queue) {
+int IsFull(struct Queue* queue) {
     return (queue->size == queue->capacity);
 }
 
-int IsEmpty(Queue* queue) {
+int IsEmpty(struct Queue* queue) {
     return (queue->size == 0);
 }
 
-void EnqueueString(Queue* queue, char* string) {
+void EnqueueString(struct Queue* queue, char* string) {
     //implement locks
     sem_wait(&(queue->mutex));
     if(isFull(queue)) {
@@ -51,7 +51,7 @@ void EnqueueString(Queue* queue, char* string) {
        	// BLOCK UNTIL SPACE AVAILABLE
 	
     }
-    queue->foot = (queue->foot + 1)%queue->capacity;
+    queue->foot = (queue->foot + 1) % queue->capacity;
     queue->lines[queue->foot] = string;
     queue->size = queue->size + 1;
     queue->enqueueCount = queue->enqueueCount + 1;
@@ -59,7 +59,7 @@ void EnqueueString(Queue* queue, char* string) {
     sem_post(&(queue->mutex));
 }
 
-char* DequeueString(Queue* queue) {
+char* DequeueString(struct Queue* queue) {
     //implement locks
     sem_wait(&queue->mutex);
     if (isEmpty(queue)) {
@@ -69,7 +69,7 @@ char* DequeueString(Queue* queue) {
         // BLOCK UNTIL THERE IS A LINE TO REMOVE
     }
     char* line = queue->lines[queue->head];
-    queue->head = (queue->head + 1)%queue->capacity;
+    queue->head = (queue->head + 1) % queue->capacity;
     queue->size = queue->size - 1;
     queue->dequeueCount = queue->dequeueCount + 1;
     sem_post(&(queue->tailLock));
@@ -77,7 +77,7 @@ char* DequeueString(Queue* queue) {
     return line;
 }
 
-void PrintQueueStats(Queue* queue) {
+void PrintQueueStats(struct Queue* queue) {
     printf("Successful enqueues: %d\n", queue->enqueueCount);
     printf("Successful dequeues: %d\n", queue->dequeueCount);
     printf("Unsuccessful enqueues: %d\n", queue->enqueueBlockedCount);
