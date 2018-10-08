@@ -14,13 +14,19 @@ static void *writeOutput(void *queue);
 static void *readStream(void *stream);
 static void checkSize();
 static int checkLineSize();
+static void mallocCheck(struct Queue *queue);
 
 int main(void){
 	
 	pthread_t reader, munch1, munch2, writer;
-	struct Queue *munch1Queue;
-	struct Queue *munch2Queue;
-	struct Queue *writerQueue;
+	struct Queue *munch1Queue = malloc(sizeof(struct *Queue));
+	mallocCheck(munch1Queue);
+
+	struct Queue *munch2Queue = malloc(sizeof(struct *Queue));
+	mallocCheck(munch2Queue);
+
+	struct Queue *writerQueue = malloc(sizeof(struct *Queue));
+	mallocCheck(writerQueue);
 
 	//will have to edit this around, readStream should return an updated char array
 	int createReader = pthread_create(&reader, NULL, readStream, /*notsureyet*/);
@@ -79,4 +85,11 @@ void threadCreateCheck(int val){
 
 int checkLineSize(){
 
+}
+
+void mallocCheck(struct Queue *queue){
+	if(queue == NULL){
+		printf("Malloc failed at queue creation\n");
+		exit(-1);
+	}
 }
