@@ -12,7 +12,8 @@ static void *firstMunch(void *queue);
 static void *secondMunch(void *queue);
 static void *writeOutput(void *queue);
 static void *readStream(void *stream);
-static int checkSizie();
+static void checkSize();
+static int checkLineSize();
 
 int main(void){
 	
@@ -66,4 +67,8 @@ void threadCreateCheck(int val){
 		printf("Failed thread creation \n");
 		exit(-1);
 	}
+}
+
+int checkLineSize(){
+
 }
