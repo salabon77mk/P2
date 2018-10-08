@@ -25,25 +25,33 @@ int main(void){
 	//will have to edit this around, readStream should return an updated char array
 	int createReader = pthread_create(&reader, NULL, readStream, /*notsureyet*/);
 	threadCreateCheck(createReader);
-	pthread_join(reader, /*stuff got passed into reader*/);
 
 	int createMunch1 = pthread_create(&munch1, NULL, firstMunch, munch1Queue);
 	threadCreateCheck(createMunch1);
-	pthread_join(munch1, (void **) munch1Queue);
 
 	int createMucnh2 = pthread_create(&munch2, NULL, secondMunch, munch2Queue);
 	threadCreateCheck(createMunch2);
-	pthread_join(munch2, (void **) munch2Queue);
 
 	int createWriter = pthread_create(&writer, NULL, writeOutput, writerQueue);
 	threadCreateCheck(createWriter);
-	pthread_join(writer, (void **) writerQueue);
+
+//	Following code is to wait for when reads are finished, might have to rearrange them
+//	pthread_join(reader, /*stuff got passed into reader*/);
+//	pthread_join(munch1, (void **) munch1Queue);
+//	pthread_join(munch2, (void **) munch2Queue);
+//	pthread_join(writer, (void **) writerQueue);
 
 	//when finished
 	PrintQueueStats();
 }
 
 void *readStream(void * stream){
+	/* psuedocode
+	 *
+	 * check line, if too big skip to next
+	 * otherwise read from file and keep queueing up?
+	 *
+	 */
 }
 
 void *firstMunch(void *queue){
