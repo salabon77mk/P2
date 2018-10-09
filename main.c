@@ -51,13 +51,31 @@ int main(void){
 	PrintQueueStats();
 }
 
-void *readStream(void * stream){
+void *readStream(void *queue){
+	struct Queue *queue = (struct *Queue) queue;
 	/* psuedocode
 	 *
 	 * check line, if too big skip to next
 	 * otherwise read from file and keep queueing up?
 	 *
 	 */
+	char *str;
+	int length;
+	str = calloc(BUFFER_SIZE, sizeof(char));
+
+	while(fgets(str, BUFFER, stdin) != NULL){
+		length = strlen(str);
+
+		if(str[BUFFER_SIZE - 1] == '\0' && str[BUFFER_SIZE - 2] != '\n'){
+			printf("That line was too long, flushing to new line");
+			int nom;
+			while((ch = fgetc(stdin)) != '\n'){/* munches to the end */}
+		}
+		else{
+			EnqueueString(queue, str);
+		}
+	}
+	return (void *) queue;
 }
 
 void *firstMunch(void *queue){
