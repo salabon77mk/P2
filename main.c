@@ -29,35 +29,58 @@ int main(void){
 	mallocCheck(writerQueue);
 
 	//will have to edit this around, readStream should return an updated char array
-	int createReader = pthread_create(&reader, NULL, readStream, /*notsureyet*/);
+	int createReader = pthread_create(&reader, NULL, readStream, (void *) munch1Queue);
 	threadCreateCheck(createReader);
 
-	int createMunch1 = pthread_create(&munch1, NULL, firstMunch, munch1Queue);
+	int createMunch1 = pthread_create(&munch1, NULL, firstMunch, (void *) munch1Queue);
 	threadCreateCheck(createMunch1);
 
-	int createMucnh2 = pthread_create(&munch2, NULL, secondMunch, munch2Queue);
+	int createMucnh2 = pthread_create(&munch2, NULL, secondMunch, (void *) munch2Queue);
 	threadCreateCheck(createMunch2);
 
-	int createWriter = pthread_create(&writer, NULL, writeOutput, writerQueue);
+	int createWriter = pthread_create(&writer, NULL, writeOutput, (void *) writerQueue);
 	threadCreateCheck(createWriter);
 
 //	Following code is to wait for when reads are finished, might have to rearrange them
-//	pthread_join(reader, /*stuff got passed into reader*/);
-//	pthread_join(munch1, (void **) munch1Queue);
-//	pthread_join(munch2, (void **) munch2Queue);
-//	pthread_join(writer, (void **) writerQueue);
+//	pthread_join(reader, NULL);
+//	pthread_join(munch1, NULL);
+//	pthread_join(munch2, NULL);
+//	pthread_join(writer, NULL);
 
 	//when finished
 	PrintQueueStats();
 }
 
-void *readStream(void * stream){
+void *readStream(void *queue){
+	struct Queue *queue = (struct *Queue) queue;
 	/* psuedocode
 	 *
 	 * check line, if too big skip to next
 	 * otherwise read from file and keep queueing up?
 	 *
 	 */
+	char *str;
+	int length;
+	str = calloc(BUFFER_SIZE, sizeof(char));
+
+	if(str == null){
+		printf("Calloc failed on str");
+		exit(-1);
+	}
+
+	while(fgets(str, BUFFER, stdin) != NULL){
+		length = strlen(str);
+
+		if(str[BUFFER_SIZE - 1] == '\0' && str[BUFFER_SIZE - 2] != '\n'){
+			printf("That line was too long, flushing to new line");
+			int nom;
+			while((ch = fgetc(stdin)) != '\n' && nom != EOF); /* munches to the end */
+		}
+		else{
+			EnqueueString(queue, str);
+		}
+	}
+	return (void *) queue;
 }
 
 void *firstMunch(void *queue){
@@ -70,10 +93,10 @@ void *secondMunch(void *queue){
 
 void *writeOutput(void *queue){
 	struct Queue* queue = (struct * Queue) queue;
-	while(!IsEmpty(queue)){	
+//	while(!IsEmpty(queue)){	
 		char *printMe = DequeueString(que);
 		printf("%s\n", printMe);	
-	}
+//	}
 }
 
 void threadCreateCheck(int val){
