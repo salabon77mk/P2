@@ -2,11 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <semaphore.h>
-
+#include <pthread.h>
 
 
 struct Queue *CreateStringQueue(unsigned int capacity){
-	capacity = 10; //For	testing
 
 	struct Queue *newQueue = malloc(sizeof(struct Queue *));
 	if(newQueue == NULL){
@@ -14,16 +13,15 @@ struct Queue *CreateStringQueue(unsigned int capacity){
 		exit(0);
 	}
 
-
-	sem_init(&(newQueue->mutex), 0, 1);
-	sem_init(&(newQueue->tailLock), 0, 0);
-	sem_init(&(newQueue->headLock), 0, 0);
+	int test0 = sem_init(&(newQueue->mutex), 0, 1);
+	int test1 = sem_init(&(newQueue->tailLock), 0, 0);
+	int test2 = sem_init(&(newQueue->headLock), 0, 0);
 	
-	sem_wait(&(newQueue->mutex));
+	int test3 = sem_wait(&(newQueue->mutex));
 
 	newQueue->lines = malloc(sizeof(char*) * capacity);
-	for(int i = 0; i < capacity; i++){
-	newQueue->lines[i] = malloc(sizeof(char*));
+	for(unsigned int i = 0; i < capacity; i++){
+		newQueue->lines[i] = malloc(sizeof(char*));
 	}
 
 	newQueue->head = 0;
@@ -37,7 +35,7 @@ struct Queue *CreateStringQueue(unsigned int capacity){
 
 	
 
-	sem_post(&(newQueue->mutex));
+	int test4 = sem_post(&(newQueue->mutex));
 	return newQueue;
 
 }
@@ -52,7 +50,7 @@ int IsEmpty(struct Queue* queue) {
 
 void EnqueueString(struct Queue* queue, char* string) {
     //implement locks
-    sem_wait(&queue->mutex);
+    int test0 = sem_wait(&(queue->mutex));
     if(IsFull(queue)) {
         queue->enqueueBlockCount = queue->enqueueBlockCount + 1;
 	sem_post(&(queue->mutex));
@@ -64,8 +62,9 @@ void EnqueueString(struct Queue* queue, char* string) {
     queue->lines[queue->foot] = string;
     queue->size = queue->size + 1;
     queue->enqueueCount = queue->enqueueCount + 1;
-    sem_post(&queue->headLock);
-    sem_post(&queue->mutex);
+    int test1 = sem_post(&(queue->headLock));
+    int test2 = sem_post(&(queue->mutex));
+	printf("MADE IT TO ENQUEUE \n");
 }
 
 char* DequeueString(struct Queue* queue) {

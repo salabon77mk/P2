@@ -1,9 +1,10 @@
+#include <pthread.h>
 #include <stdio.h>
 #include <ctype.h>
 #include "queue.h"
-#include <pthread.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #ifndef BUFFER_SIZE
 #define BUFFER_SIZE 10
@@ -19,6 +20,7 @@
 struct Queue_Tuple {
     struct Queue* queue1;
     struct Queue* queue2;
+    unsigned int reachedEOF;
 };
 
 static void *firstMunch(void *tuple);
@@ -26,17 +28,23 @@ static void *secondMunch(void *tuple);
 static void *writeOutput(void *queue);
 static void *readStream(void *stream);
 static void threadCreateCheck(int val);
-static void mallocCheck(struct Queue_Tuple *queue);
+static struct Queue_Tuple *makeTuple(struct Queue *queue1, struct Queue *queue2);
 
 int main(void){
-
-	pthread_t reader, munch1, munch2, writer;
+	//TODO Edit struct to hold some boolean once reader has read EOF
+	
+	//create queues
 	struct Queue *munch1Queue = CreateStringQueue(CAPACITY);
-
 	struct Queue *munch2Queue = CreateStringQueue(CAPACITY);
-
 	struct Queue *writerQueue = CreateStringQueue(CAPACITY);
 
+	//edit these later for niceness
+	
+	struct Queue_Tuple *munch1_tuple = makeTuple(munch1Queue, munch2Queue);
+	struct Queue_Tuple *munch2_tuple = makeTuple(munch2Queue, writerQueue);
+	
+
+	/* Will delete later, this was the original long form
 	struct Queue_Tuple *munch1_tuple = malloc(sizeof(struct Queue_Tuple*));
 	munch1_tuple->queue1 = munch1Queue;
 	munch1_tuple->queue2 = munch2Queue;
@@ -44,20 +52,33 @@ int main(void){
 	struct Queue_Tuple *munch2_tuple = malloc(sizeof(struct Queue_Tuple*));
 	munch2_tuple->queue1 = munch2Queue;
 	munch2_tuple->queue2 = writerQueue;
+	*/
 
-	//will have to edit this around, readStream should return an updated char array
-	int createReader = pthread_create(&reader, NULL, readStream, (void *) munch1Queue);
+	//threads
+	pthread_t reader, munch1, munch2, writer;
+	//create our four threads
+	/* alternative style, shouldn't be any different though, only used to see
+	 * if stderr is ever reached, it isn't
+	if(pthread_create(&reader, NULL, readStream, munch1Queue)){
+		fprintf(stderr, "We got some issues with pthread creation");
+		return 1;
+	}
+	*/
+
+	int createReader =  pthread_create(&reader, NULL, readStream, munch1Queue);
 	threadCreateCheck(createReader);
+	
 
-	int createMunch1 = pthread_create(&munch1, NULL, firstMunch, (void *) munch1_tuple);
+	int createMunch1 = pthread_create(&munch1, NULL, firstMunch,  munch1_tuple);
 	threadCreateCheck(createMunch1);
 
-	int createMunch2 = pthread_create(&munch2, NULL, secondMunch, (void *) munch2_tuple);
+	int createMunch2 = pthread_create(&munch2, NULL, secondMunch,  munch2_tuple);
 	threadCreateCheck(createMunch2);
 
-	int createWriter = pthread_create(&writer, NULL, writeOutput, (void *) writerQueue);
+	int createWriter = pthread_create(&writer, NULL, writeOutput,  writerQueue);
 	threadCreateCheck(createWriter);
 
+	printf("CREATED ALL THREADS! \n");
 //	Following code is to wait for when reads are finished, might have to rearrange them
 	pthread_join(reader, NULL);
 	pthread_join(munch1, NULL);
@@ -70,6 +91,8 @@ int main(void){
 	PrintQueueStats(writerQueue);
 }
 
+
+//TODO: Change loops in all thread functions, some stuff is placeholder
 void *readStream(void *queue){
 	struct Queue *q = queue;
 	/* psuedocode
@@ -146,9 +169,14 @@ void threadCreateCheck(int val){
 }
 
 
-void mallocCheck(struct Queue_Tuple *queue){
-	if(queue == NULL){
+struct Queue_Tuple *makeTuple(struct Queue *queue1, struct Queue *queue2){
+	struct Queue_Tuple *qtup = malloc(sizeof(struct Queue_Tuple*));
+	if(qtup == NULL){
 		fprintf(stderr, "Malloc failed at queue creation\n");
 		exit(-1);
 	}
+	qtup->queue1 = queue1;
+	qtup->queue2 = queue2;
+	qtup->reachedEOF = 0; //false
+	return qtup;
 }
