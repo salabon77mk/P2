@@ -2,6 +2,7 @@
 #include <ctype.h>
 #include "queue.h"
 #include <pthread.h>
+#include <string.h>
 
 #ifndef BUFFER_SIZE
 #define BUFFER_SIZE 1024
@@ -17,7 +18,7 @@ static int checkLineSize();
 static void mallocCheck(struct Queue *queue);
 
 int main(void){
-	
+
 	pthread_t reader, munch1, munch2, writer;
 	struct Queue *munch1Queue = malloc(sizeof(struct *Queue));
 	mallocCheck(munch1Queue);
@@ -84,19 +85,42 @@ void *readStream(void *queue){
 }
 
 void *firstMunch(void *queue){
-
+    while(!isEmpty(/* MUNCH1 QUEUE */)) {
+        char* line = DequeueString(queue);
+        char *idx = strchr(*line, ' ');
+        while (idx) {
+            *idx = '*';
+            idx = strchr(current_pos + 1, ' ');
+        }
+        EnqueueString(/* MUNCH2 QUEUE */, line)
+    }
 }
 
 void *secondMunch(void *queue){
-
+    while(!isEmpty(/* MUNCH2 QUEUE */)) {
+        char* line = DequeueString(queue);
+        int i = 0;
+        while(*(line[i])) {
+            putchar(toupper(*(line[i])));
+            i++;
+        }
+        EnqueueString(/* WRITER QUEUE */)
+    }
 }
 
 void *writeOutput(void *queue){
 	struct Queue* queue = (struct * Queue) queue;
+
 //	while(!IsEmpty(queue)){	
 		char *printMe = DequeueString(que);
 		printf("%s\n", printMe);	
 //	}
+
+	while(!IsEmpty(queue)){
+		char *printMe = DequeueString(queue);
+		printf("%s\n", printMe);
+	}
+
 }
 
 void threadCreateCheck(int val){
