@@ -94,48 +94,47 @@ void *readStream(void *queue){
 			EnqueueString(queue, str);
 		}
 	}
-	return (void *) queue;
+	return NULL;
 }
 
 void *firstMunch(void *queue){
     struct Queue_Tuple *tuple = (struct *queue_tuple) queue;
-    while(!isEmpty(*tuple->queue1)) {
-        char* line = DequeueString(queue);
+    while(!isEmpty(tuple->queue1)) {
+        char *line = DequeueString(queue);
         char *idx = strchr(*line, ' ');
         while (idx) {
-            *idx = '*';
+            idx = '*';
             idx = strchr(current_pos + 1, ' ');
         }
         EnqueueString(*tuple->queue2, line);
     }
+   return NULL;
 }
 
 void *secondMunch(void *queue){
-    struct Queue_Tuple *tuple = (struct *queue_tuple) queue;
-    while(!isEmpty(*tuple->queue1)) {
+   struct Queue_Tuple *tuple = (struct *queue_tuple) queue;
+    while(!isEmpty(tuple->queue1)) {
         char* line = DequeueString(queue);
         int i = 0;
-        while(*(line[i])) {
-            putchar(toupper(*(line[i])));
+        while(line[i]) {
+            putchar(toupper(line[i]));
             i++;
         }
-        EnqueueString(*tuple->queue2, line);
+        EnqueueString(tuple->queue2, line);
     }
+    return NULL;
 }
 
 void *writeOutput(void *queue){
 	struct Queue* queue = (struct * Queue) queue;
 
-//	while(!IsEmpty(queue)){
-		char *printMe = DequeueString(que);
-		printf("%s\n", printMe);
-//	}
+
 
 	while(!IsEmpty(queue)){
 		char *printMe = DequeueString(queue);
 		printf("%s\n", printMe);
 	}
-
+	return NULL
 }
 
 void threadCreateCheck(int val){
