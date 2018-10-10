@@ -17,6 +17,11 @@ static void *readStream(void *stream);
 static int checkLineSize();
 static void mallocCheck(struct Queue *queue);
 
+struct Queue_Tuple {
+    Queue* queue1;
+    Queue* queue2;
+};
+
 int main(void){
 
 	pthread_t reader, munch1, munch2, writer;
@@ -29,14 +34,22 @@ int main(void){
 	struct Queue *writerQueue = malloc(sizeof(struct *Queue));
 	mallocCheck(writerQueue);
 
+	struct Queue_Tuple munch1_tuple;
+	munch1_tuple.queue1 = munch1Queue;
+	munch1_tuple.queue2 = munch2Queue;
+
+	struct Queue_Tuple munch2_tuple;
+	munch2_tuple.queue1 = munch2Queue;
+	munch2_tuple.queue2 = writerQueue;
+
 	//will have to edit this around, readStream should return an updated char array
 	int createReader = pthread_create(&reader, NULL, readStream, (void *) munch1Queue);
 	threadCreateCheck(createReader);
 
-	int createMunch1 = pthread_create(&munch1, NULL, firstMunch, (void *) munch1Queue);
+	int createMunch1 = pthread_create(&munch1, NULL, firstMunch, (void *) munch1_tuple);
 	threadCreateCheck(createMunch1);
 
-	int createMucnh2 = pthread_create(&munch2, NULL, secondMunch, (void *) munch2Queue);
+	int createMunch2 = pthread_create(&munch2, NULL, secondMunch, (void *) munch2_tuple);
 	threadCreateCheck(createMunch2);
 
 	int createWriter = pthread_create(&writer, NULL, writeOutput, (void *) writerQueue);
@@ -85,35 +98,37 @@ void *readStream(void *queue){
 }
 
 void *firstMunch(void *queue){
-    while(!isEmpty(/* MUNCH1 QUEUE */)) {
+    struct Queue_Tuple *tuple = (struct *queue_tuple) queue;
+    while(!isEmpty(*tuple->queue1)) {
         char* line = DequeueString(queue);
         char *idx = strchr(*line, ' ');
         while (idx) {
             *idx = '*';
             idx = strchr(current_pos + 1, ' ');
         }
-        EnqueueString(/* MUNCH2 QUEUE */, line)
+        EnqueueString(*tuple->queue2, line);
     }
 }
 
 void *secondMunch(void *queue){
-    while(!isEmpty(/* MUNCH2 QUEUE */)) {
+    struct Queue_Tuple *tuple = (struct *queue_tuple) queue;
+    while(!isEmpty(*tuple->queue1)) {
         char* line = DequeueString(queue);
         int i = 0;
         while(*(line[i])) {
             putchar(toupper(*(line[i])));
             i++;
         }
-        EnqueueString(/* WRITER QUEUE */)
+        EnqueueString(*tuple->queue2, line);
     }
 }
 
 void *writeOutput(void *queue){
 	struct Queue* queue = (struct * Queue) queue;
 
-//	while(!IsEmpty(queue)){	
+//	while(!IsEmpty(queue)){
 		char *printMe = DequeueString(que);
-		printf("%s\n", printMe);	
+		printf("%s\n", printMe);
 //	}
 
 	while(!IsEmpty(queue)){
