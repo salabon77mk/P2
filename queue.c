@@ -22,6 +22,9 @@ struct Queue *CreateStringQueue(unsigned int capacity){
 	sem_wait(&(newQueue->mutex));
 
 	newQueue->lines = malloc(sizeof(char*) * capacity);
+	for(int i = 0; i < capacity; i++){
+	newQueue->lines[i] = malloc(sizeof(char*));
+	}
 
 	newQueue->head = 0;
 	newQueue->foot = capacity - 1;
@@ -49,7 +52,7 @@ int IsEmpty(struct Queue* queue) {
 
 void EnqueueString(struct Queue* queue, char* string) {
     //implement locks
-    sem_wait(&(queue->mutex));
+    sem_wait(&queue->mutex);
     if(IsFull(queue)) {
         queue->enqueueBlockCount = queue->enqueueBlockCount + 1;
 	sem_post(&(queue->mutex));
@@ -61,8 +64,8 @@ void EnqueueString(struct Queue* queue, char* string) {
     queue->lines[queue->foot] = string;
     queue->size = queue->size + 1;
     queue->enqueueCount = queue->enqueueCount + 1;
-    sem_post(&(queue->headLock));
-    sem_post(&(queue->mutex));
+    sem_post(&queue->headLock);
+    sem_post(&queue->mutex);
 }
 
 char* DequeueString(struct Queue* queue) {
