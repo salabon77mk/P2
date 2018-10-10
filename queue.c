@@ -9,9 +9,15 @@ struct Queue *CreateStringQueue(unsigned int capacity){
 	capacity = 10; //For	testing
 
 	struct Queue *newQueue = malloc(sizeof(struct Queue *));
+	if(newQueue == NULL){
+		fprintf(stderr, "Failed to malloc queue");
+		exit(0);
+	}
+
+
 	sem_init(&(newQueue->mutex), 0, 1);
-	sem_init(&(newQueue->tailLock), 0, 1);
-	sem_init(&(newQueue->headLock), 0, 1);
+	sem_init(&(newQueue->tailLock), 0, 0);
+	sem_init(&(newQueue->headLock), 0, 0);
 	
 	sem_wait(&(newQueue->mutex));
 

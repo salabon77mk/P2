@@ -6,34 +6,36 @@
 #include <stdlib.h>
 
 #ifndef BUFFER_SIZE
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 10
+#endif
+
+#ifndef CAPACITY
+#define CAPACITY 10
 #endif
 
 //TODO make struct to hold args for readStream?
 
-static void *firstMunch(void *tuple);
-static void *secondMunch(void *tuple);
-static void *writeOutput(void *queue);
-static void *readStream(void *stream);
-static void threadCreateCheck(int val);
-static void mallocCheck(struct Queue *queue);
 
 struct Queue_Tuple {
     struct Queue* queue1;
     struct Queue* queue2;
 };
 
+static void *firstMunch(void *tuple);
+static void *secondMunch(void *tuple);
+static void *writeOutput(void *queue);
+static void *readStream(void *stream);
+static void threadCreateCheck(int val);
+static void mallocCheck(struct Queue_Tuple *queue);
+
 int main(void){
 
 	pthread_t reader, munch1, munch2, writer;
-	struct Queue *munch1Queue = malloc(sizeof(struct Queue*));
-	mallocCheck(munch1Queue);
+	struct Queue *munch1Queue = CreateStringQueue(CAPACITY);
 
-	struct Queue *munch2Queue = malloc(sizeof(struct Queue*));
-	mallocCheck(munch2Queue);
+	struct Queue *munch2Queue = CreateStringQueue(CAPACITY);
 
-	struct Queue *writerQueue = malloc(sizeof(struct Queue*));
-	mallocCheck(writerQueue);
+	struct Queue *writerQueue = CreateStringQueue(CAPACITY);
 
 	struct Queue_Tuple *munch1_tuple = malloc(sizeof(struct Queue_Tuple*));
 	munch1_tuple->queue1 = munch1Queue;
@@ -57,10 +59,10 @@ int main(void){
 	threadCreateCheck(createWriter);
 
 //	Following code is to wait for when reads are finished, might have to rearrange them
-//	pthread_join(reader, NULL);
-//	pthread_join(munch1, NULL);
-//	pthread_join(munch2, NULL);
-//	pthread_join(writer, NULL);
+	pthread_join(reader, NULL);
+	pthread_join(munch1, NULL);
+	pthread_join(munch2, NULL);
+	pthread_join(writer, NULL);
 
 	//when finished
 	PrintQueueStats(munch1Queue);
@@ -131,6 +133,7 @@ void *writeOutput(void *queue){
 	while(!IsEmpty(q)){
 		char *printMe = DequeueString(q);
 		printf("%s\n", printMe);
+		free(printMe);
 	}
 	return NULL;
 }
@@ -143,7 +146,7 @@ void threadCreateCheck(int val){
 }
 
 
-void mallocCheck(struct Queue *queue){
+void mallocCheck(struct Queue_Tuple *queue){
 	if(queue == NULL){
 		fprintf(stderr, "Malloc failed at queue creation\n");
 		exit(-1);
