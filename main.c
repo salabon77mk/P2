@@ -18,8 +18,8 @@ static int checkLineSize();
 static void mallocCheck(struct Queue *queue);
 
 struct Queue_Tuple {
-    Queue* queue1;
-    Queue* queue2;
+    struct Queue* queue1;
+    struct Queue* queue2;
 };
 
 int main(void){
@@ -34,13 +34,13 @@ int main(void){
 	struct Queue *writerQueue = malloc(sizeof(struct *Queue));
 	mallocCheck(writerQueue);
 
-	struct Queue_Tuple munch1_tuple;
-	munch1_tuple.queue1 = munch1Queue;
-	munch1_tuple.queue2 = munch2Queue;
+	struct Queue_Tuple *munch1_tuple;
+	munch1_tuple->queue1 = munch1Queue;
+	munch1_tuple->queue2 = munch2Queue;
 
-	struct Queue_Tuple munch2_tuple;
-	munch2_tuple.queue1 = munch2Queue;
-	munch2_tuple.queue2 = writerQueue;
+	struct Queue_Tuple *munch2_tuple;
+	munch2_tuple->queue1 = munch2Queue;
+	munch2_tuple->queue2 = writerQueue;
 
 	//will have to edit this around, readStream should return an updated char array
 	int createReader = pthread_create(&reader, NULL, readStream, (void *) munch1Queue);
