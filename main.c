@@ -36,7 +36,7 @@ int main(void){
 	mallocCheck(writerQueue);
 
 	struct Queue_Tuple *munch1_tuple = malloc(sizeof(struct Queue_Tuple*));
-	munch1_tuple->queue1 = munch1Queue; 
+	munch1_tuple->queue1 = munch1Queue;
 	munch1_tuple->queue2 = munch2Queue;
 
 	struct Queue_Tuple *munch2_tuple = malloc(sizeof(struct Queue_Tuple*));
@@ -84,7 +84,7 @@ void *readStream(void *queue){
 		exit(-1);
 	}
 
-	
+
 	while(fgets(str, BUFFER_SIZE, stdin) != NULL){
 		if(str[BUFFER_SIZE - 1] == '\0' && str[BUFFER_SIZE - 2] != '\n'){
 			fprintf(stderr, "That line was too long, flushing to new line");
@@ -104,8 +104,8 @@ void *firstMunch(void *tuple){
         char *line = DequeueString(tup->queue1);
         char *idx = strchr(line, ' ');
         while (idx) {
-            idx = '*';
-            idx = strchr(current_pos + 1, ' ');
+            *idx = '*';
+            idx = strchr(idx + 1, ' ');
         }
         EnqueueString(tup->queue2, line);
     }
