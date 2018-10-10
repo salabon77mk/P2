@@ -3,6 +3,7 @@
 #include "queue.h"
 #include <pthread.h>
 #include <string.h>
+#include <stdlib.>
 
 #ifndef BUFFER_SIZE
 #define BUFFER_SIZE 1024
@@ -86,7 +87,7 @@ void *readStream(void *queue){
 		length = strlen(str);
 
 		if(str[BUFFER_SIZE - 1] == '\0' && str[BUFFER_SIZE - 2] != '\n'){
-			printf("That line was too long, flushing to new line");
+			stderr("That line was too long, flushing to new line");
 			int nom;
 			while((ch = fgetc(stdin)) != '\n' && nom != EOF); /* munches to the end */
 		}
@@ -128,8 +129,6 @@ void *secondMunch(void *queue){
 void *writeOutput(void *queue){
 	struct Queue* queue = (struct * Queue) queue;
 
-
-
 	while(!IsEmpty(queue)){
 		char *printMe = DequeueString(queue);
 		printf("%s\n", printMe);
@@ -139,7 +138,7 @@ void *writeOutput(void *queue){
 
 void threadCreateCheck(int val){
 	if(val != 0){
-		printf("Failed thread creation \n");
+		stderr("Failed thread creation \n");
 		exit(-1);
 	}
 }
@@ -147,7 +146,7 @@ void threadCreateCheck(int val){
 
 void mallocCheck(struct Queue *queue){
 	if(queue == NULL){
-		printf("Malloc failed at queue creation\n");
+		stderr("Malloc failed at queue creation\n");
 		exit(-1);
 	}
 }
