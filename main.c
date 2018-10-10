@@ -3,7 +3,7 @@
 #include "queue.h"
 #include <pthread.h>
 #include <string.h>
-#include <stdlib.>
+#include <stdlib.h>
 
 #ifndef BUFFER_SIZE
 #define BUFFER_SIZE 1024
@@ -11,11 +11,11 @@
 
 //TODO make struct to hold args for readStream?
 
-static void *firstMunch(void *queue);
-static void *secondMunch(void *queue);
+static void *firstMunch(void *tuple);
+static void *secondMunch(void *tuple);
 static void *writeOutput(void *queue);
 static void *readStream(void *stream);
-static int checkLineSize();
+static void threadCreateCheck(int val);
 static void mallocCheck(struct Queue *queue);
 
 struct Queue_Tuple {
@@ -26,20 +26,20 @@ struct Queue_Tuple {
 int main(void){
 
 	pthread_t reader, munch1, munch2, writer;
-	struct Queue *munch1Queue = malloc(sizeof(struct *Queue));
+	struct Queue *munch1Queue = malloc(sizeof(struct Queue*));
 	mallocCheck(munch1Queue);
 
-	struct Queue *munch2Queue = malloc(sizeof(struct *Queue));
+	struct Queue *munch2Queue = malloc(sizeof(struct Queue*));
 	mallocCheck(munch2Queue);
 
-	struct Queue *writerQueue = malloc(sizeof(struct *Queue));
+	struct Queue *writerQueue = malloc(sizeof(struct Queue*));
 	mallocCheck(writerQueue);
 
-	struct Queue_Tuple *munch1_tuple;
-	munch1_tuple->queue1 = munch1Queue;
+	struct Queue_Tuple *munch1_tuple = malloc(sizeof(struct Queue_Tuple*));
+	munch1_tuple->queue1 = munch1Queue; 
 	munch1_tuple->queue2 = munch2Queue;
 
-	struct Queue_Tuple *munch2_tuple;
+	struct Queue_Tuple *munch2_tuple = malloc(sizeof(struct Queue_Tuple*));
 	munch2_tuple->queue1 = munch2Queue;
 	munch2_tuple->queue2 = writerQueue;
 
@@ -63,11 +63,13 @@ int main(void){
 //	pthread_join(writer, NULL);
 
 	//when finished
-	PrintQueueStats();
+	PrintQueueStats(munch1Queue);
+	PrintQueueStats(munch2Queue);
+	PrintQueueStats(writerQueue);
 }
 
 void *readStream(void *queue){
-	struct Queue *queue = (struct *Queue) queue;
+	struct Queue *q = queue;
 	/* psuedocode
 	 *
 	 * check line, if too big skip to next
@@ -75,70 +77,67 @@ void *readStream(void *queue){
 	 *
 	 */
 	char *str;
-	int length;
 	str = calloc(BUFFER_SIZE, sizeof(char));
 
-	if(str == null){
+	if(str == NULL){
 		printf("Calloc failed on str");
 		exit(-1);
 	}
 
-	while(fgets(str, BUFFER, stdin) != NULL){
-		length = strlen(str);
-
+	
+	while(fgets(str, BUFFER_SIZE, stdin) != NULL){
 		if(str[BUFFER_SIZE - 1] == '\0' && str[BUFFER_SIZE - 2] != '\n'){
-			stderr("That line was too long, flushing to new line");
+			fprintf(stderr, "That line was too long, flushing to new line");
 			int nom;
-			while((ch = fgetc(stdin)) != '\n' && nom != EOF); /* munches to the end */
+			while((nom = fgetc(stdin)) != '\n' && nom != EOF); /* munches to the end */
 		}
 		else{
-			EnqueueString(queue, str);
+			EnqueueString(q, str);
 		}
 	}
 	return NULL;
 }
 
-void *firstMunch(void *queue){
-    struct Queue_Tuple *tuple = (struct *queue_tuple) queue;
-    while(!isEmpty(tuple->queue1)) {
-        char *line = DequeueString(queue);
-        char *idx = strchr(*line, ' ');
+void *firstMunch(void *tuple){
+    struct Queue_Tuple *tup = tuple;
+    while(!IsEmpty(tup->queue1)) {
+        char *line = DequeueString(tup->queue1);
+        char *idx = strchr(line, ' ');
         while (idx) {
             idx = '*';
             idx = strchr(current_pos + 1, ' ');
         }
-        EnqueueString(*tuple->queue2, line);
+        EnqueueString(tup->queue2, line);
     }
    return NULL;
 }
 
-void *secondMunch(void *queue){
-   struct Queue_Tuple *tuple = (struct *queue_tuple) queue;
-    while(!isEmpty(tuple->queue1)) {
-        char* line = DequeueString(queue);
+void *secondMunch(void *tuple){
+    struct Queue_Tuple *tup = tuple;
+    while(!IsEmpty(tup->queue1)) {
+        char* line = DequeueString(tup->queue1);
         int i = 0;
         while(line[i]) {
             putchar(toupper(line[i]));
             i++;
         }
-        EnqueueString(tuple->queue2, line);
+        EnqueueString(tup->queue2, line);
     }
     return NULL;
 }
 
 void *writeOutput(void *queue){
-	struct Queue* queue = (struct * Queue) queue;
-
-	while(!IsEmpty(queue)){
-		char *printMe = DequeueString(queue);
+	struct Queue *q = queue;
+	while(!IsEmpty(q)){
+		char *printMe = DequeueString(q);
 		printf("%s\n", printMe);
 	}
-	return NULL
+	return NULL;
 }
 
 void threadCreateCheck(int val){
 	if(val != 0){
-		stderr("Failed thread creation \n");
+		fprintf(stderr, "Failed thread creation \n");
 		exit(-1);
 	}
 }
@@ -146,7 +145,7 @@ void threadCreateCheck(int val){
 
 void mallocCheck(struct Queue *queue){
 	if(queue == NULL){
-		stderr("Malloc failed at queue creation\n");
+		fprintf(stderr, "Malloc failed at queue creation\n");
 		exit(-1);
 	}
 }

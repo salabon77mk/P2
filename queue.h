@@ -14,9 +14,9 @@ struct Queue {
 };
 
 
-Queue *CreateStringQueue(unsigned int capacity);
-void EnqueueString(Queue *queue, char *string);
-char * DequeueString(Queue *queue);
-void PrintQueueStats(Queue *queue);
-int IsFull(Queue* queue);
-int IsEmpty(Queue* queue);
+struct Queue *CreateStringQueue(unsigned int capacity);
+void EnqueueString(struct Queue *queue, char *string);
+char * DequeueString(struct Queue *queue);
+void PrintQueueStats(struct Queue *queue);
+int IsFull(struct Queue* queue);
+int IsEmpty(struct Queue* queue);

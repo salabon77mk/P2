@@ -8,14 +8,14 @@
 struct Queue *CreateStringQueue(unsigned int capacity){
 	capacity = 10; //For	testing
 
-	sem_init(&(newQueue->mutex), NULL, 1);
-	sem_init(&(newQueue->tailLock), NULL, 1);
-	sem_init(&(newQueue->headLock), NULL, 1);
+	struct Queue *newQueue = malloc(sizeof(struct Queue *));
+	sem_init(&(newQueue->mutex), 0, 1);
+	sem_init(&(newQueue->tailLock), 0, 1);
+	sem_init(&(newQueue->headLock), 0, 1);
 	
 	sem_wait(&(newQueue->mutex));
 
-	struct *newQueue = malloc(sizeof(struct Queue *));
-	newQueue->lines = (char*) malloc(sizeof(char) * capacity);
+	newQueue->lines = malloc(sizeof(char*) * capacity);
 
 	newQueue->head = 0;
 	newQueue->foot = capacity - 1;
@@ -23,10 +23,10 @@ struct Queue *CreateStringQueue(unsigned int capacity){
 	newQueue->capacity = capacity;
 	newQueue->enqueueCount = 0;
 	newQueue->dequeueCount = 0;
-	newQueue->enqueuedBlockCount = 0;
+	newQueue->enqueueBlockCount = 0;
 	newQueue->dequeueBlockCount = 0;
 
-	newQueue->queueState = 0; //It's free
+	
 
 	sem_post(&(newQueue->mutex));
 	return newQueue;
@@ -44,7 +44,7 @@ int IsEmpty(struct Queue* queue) {
 void EnqueueString(struct Queue* queue, char* string) {
     //implement locks
     sem_wait(&(queue->mutex));
-    if(isFull(queue)) {
+    if(IsFull(queue)) {
         queue->enqueueBlockCount = queue->enqueueBlockCount + 1;
 	sem_post(&(queue->mutex));
         sem_wait(&(queue->tailLock));
@@ -62,7 +62,7 @@ void EnqueueString(struct Queue* queue, char* string) {
 char* DequeueString(struct Queue* queue) {
     //implement locks
     sem_wait(&queue->mutex);
-    if (isEmpty(queue)) {
+    if (IsEmpty(queue)) {
         queue->dequeueBlockCount = queue->dequeueBlockCount + 1;
 	sem_post(&(queue->mutex));
 	sem_wait(&(queue->headLock));
@@ -80,6 +80,6 @@ char* DequeueString(struct Queue* queue) {
 void PrintQueueStats(struct Queue* queue) {
     printf("Successful enqueues: %u\n", queue->enqueueCount);
     printf("Successful dequeues: %u\n", queue->dequeueCount);
-    printf("Unsuccessful enqueues: %u\n", queue->enqueueBlockedCount);
+    printf("Unsuccessful enqueues: %u\n", queue->enqueueBlockCount);
     printf("Unsuccessful dequeues: %u\n", queue->dequeueBlockCount);
 }
