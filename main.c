@@ -26,7 +26,7 @@ struct Queue_Tuple {
 static void *firstMunch(void *tuple);
 static void *secondMunch(void *tuple);
 static void *writeOutput(void *queue);
-static void *readStream(void *stream);
+static void *readStream(void *queue);
 static void threadCreateCheck(int val);
 static struct Queue_Tuple *makeTuple(struct Queue *queue1, struct Queue *queue2);
 
@@ -131,6 +131,7 @@ void *firstMunch(void *tuple){
             idx = strchr(idx + 1, ' ');
         }
         EnqueueString(tup->queue2, line);
+
 	line = DequeueString(tup->queue1);
     }
     EnqueueString(tup->queue2, line);
@@ -153,15 +154,19 @@ void *secondMunch(void *tuple){
     return NULL;
 }
 
-void *writeOutput(void *queue){
-	/*	
-	struct Queue *q = queue;
-	while(!IsEmpty(q)){
-		char *printMe = DequeueString(q);
+void *writeOutput(void *tuple){
+
+	struct Queue *writeQueue = tuple;
+	char *printMe = DequeString(writeQueue);
+
+	while(printMe != NULL)
+
 		printf("%s\n", printMe);
 		free(printMe);
+
+		printMe = DequeueString(writeQueue);
 	}
-	*/
+
 	return NULL;
 }
 
