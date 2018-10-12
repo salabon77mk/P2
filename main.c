@@ -121,7 +121,7 @@ void *firstMunch(void *tuple){
     while(line != NULL){
         char *idx = strchr(line, ' ');
         while (idx) {
-            idx = '*';
+            *idx = '*';
             idx = strchr(idx + 1, ' ');
         }
         EnqueueString(tup->queue2, line);
@@ -134,7 +134,7 @@ void *firstMunch(void *tuple){
 
 void *secondMunch(void *tuple){
     struct Queue_Tuple *tup = tuple;
-    char *line = DequeueString(queue1);
+    char *line = DequeueString(tup->queue1);
 
     while(line != NULL) {
         int i = 0;
@@ -142,7 +142,8 @@ void *secondMunch(void *tuple){
             putchar(toupper(line[i]));
             i++;
         }
-        line = DequeueString(tup->queue2, line);
+	EnqueueString(tup->queue2, line);
+        line = DequeueString(tup->queue1);
     }
     EnqueueString(tup->queue2, line);
     return NULL;
@@ -151,13 +152,18 @@ void *secondMunch(void *tuple){
 
 void *writeOutput(void *queue){
 
-	struct Queue *writeQueue = tuple;
-	char *printMe = DequeString(writeQueue);
+	struct Queue *writeQueue = queue;
+	char *printMe = DequeueString(writeQueue);
 
 	while(printMe != NULL){
-
+		printf("Output: %s", printMe);
+		free(printMe);
+		printMe = NULL;
+		printMe = DequeueString(writeQueue);
 	}
 
+	return NULL;
+}
 
 void threadCreateCheck(int val){
 	if(val != 0){
