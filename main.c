@@ -32,13 +32,13 @@ static struct Queue_Tuple *makeTuple(struct Queue *queue1, struct Queue *queue2)
 
 int main(void){
 	//TODO Edit struct to hold some boolean once reader has read EOF
-	
+
 	//create queues
 	struct Queue *munch1Queue = CreateStringQueue(CAPACITY);
 	struct Queue *munch2Queue = CreateStringQueue(CAPACITY);
 	struct Queue *writerQueue = CreateStringQueue(CAPACITY);
-	
-	
+
+
 	struct Queue_Tuple *munch1_tuple = makeTuple(munch1Queue, munch2Queue);
 	struct Queue_Tuple *munch2_tuple = makeTuple(munch2Queue, writerQueue);
 	//threads
@@ -46,7 +46,7 @@ int main(void){
 
 	int createReader = pthread_create(&reader, NULL, readStream, munch1Queue);
 	threadCreateCheck(createReader);
-	
+
 
 	int createMunch1 = pthread_create(&munch1, NULL, firstMunch, munch1_tuple);
 	threadCreateCheck(createMunch1);
@@ -57,7 +57,7 @@ int main(void){
 	int createWriter = pthread_create(&writer, NULL, writeOutput, writerQueue);
 	threadCreateCheck(createWriter);
 
-	
+
 	printf("CREATED ALL THREADS! \n");
 	//Following code is to wait for when reads are finished, might have to rearrange them
 	pthread_join(reader, NULL);
@@ -65,24 +65,18 @@ int main(void){
 	pthread_join(munch2, NULL);
 	pthread_join(writer, NULL);
 
-	
+
 	//when finished
 	PrintQueueStats(munch1Queue);
 	PrintQueueStats(munch2Queue);
 	PrintQueueStats(writerQueue);
-	
+
 }
 
 
 //TODO: Change loops in all thread functions, some stuff is placeholder
 void *readStream(void *queue){
 	struct Queue *q = queue;
-	/* psuedocode
-	 *
-	 * check line, if too big skip to next
-	 * otherwise read from file and keep queueing up?
-	 *
-	 */
 	char *str;
 	str = (char *) malloc(sizeof(char) * BUFFER_SIZE);
 
@@ -96,11 +90,11 @@ void *readStream(void *queue){
 	while((currChar = fgetc(stdin)) != EOF){
 		if(counter >= BUFFER_SIZE){
 			fprintf(stderr, "That line is too long, flushing");
-			counter = 0;			
+			counter = 0;
 			int ch;
 			while ((ch = fgetc(stdin)) != '\n'  && ch != EOF);
 		}
-	
+
 		// Reached new line char, time to enqueue
 		else if(currChar == '\n'){
 			str[counter] = currChar;
@@ -112,7 +106,7 @@ void *readStream(void *queue){
 		else{
 			str[counter] = currChar;
 			counter++;
-		}		
+		}
 	}
 	EnqueueString(q, NULL);
 
@@ -120,11 +114,11 @@ void *readStream(void *queue){
 }
 
 void *firstMunch(void *tuple){
-    	
+
     struct Queue_Tuple *tup = tuple;
     char *line = DequeueString(tup->queue1);
-    
-    while(line != NULL){ 
+
+    while(line != NULL){
         char *idx = strchr(line, ' ');
         while (idx) {
             idx = '*';
@@ -139,36 +133,31 @@ void *firstMunch(void *tuple){
 }
 
 void *secondMunch(void *tuple){
-	/*	
     struct Queue_Tuple *tup = tuple;
-    while(!IsEmpty(tup->queue1)) {
-        char* line = DequeueString(tup->queue1);
+    char *line = DequeueString(queue1);
+
+    while(line != NULL) {
         int i = 0;
-        while(line[i]) {
+        while (line[i]) {
             putchar(toupper(line[i]));
             i++;
         }
-        EnqueueString(tup->queue2, line);
+        line = DequeueString(tup->queue2, line);
     }
-    */
+    EnqueueString(tup->queue2, line);
     return NULL;
 }
 
-void *writeOutput(void *tuple){
+
+void *writeOutput(void *queue){
 
 	struct Queue *writeQueue = tuple;
 	char *printMe = DequeString(writeQueue);
 
-	while(printMe != NULL)
+	while(printMe != NULL){
 
-		printf("%s\n", printMe);
-		free(printMe);
-
-		printMe = DequeueString(writeQueue);
 	}
 
-	return NULL;
-}
 
 void threadCreateCheck(int val){
 	if(val != 0){
