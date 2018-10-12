@@ -96,8 +96,6 @@ void *readStream(void *queue){
 	while((currChar = fgetc(stdin)) != EOF){
 		if(counter >= BUFFER_SIZE){
 			fprintf(stderr, "That line is too long, flushing");
-			free(str);
-			str = NULL;
 			counter = 0;			
 			int ch;
 			while ((ch = fgetc(stdin)) != '\n'  && ch != EOF);
@@ -106,8 +104,9 @@ void *readStream(void *queue){
 		// Reached new line char, time to enqueue
 		else if(currChar == '\n'){
 			str[counter] = currChar;
-//			EnqueueString(q, str);
+			EnqueueString(q, str);
 			printf("%s \n", str);
+			counter = 0;
 			str = (char *) malloc(sizeof(char) * BUFFER_SIZE);
 		}
 		else{
@@ -115,45 +114,27 @@ void *readStream(void *queue){
 			counter++;
 		}		
 	}
+	EnqueueString(q, NULL);
 
-
-	//TODO rewrite using fgetc
-	/*
-	while(fgets(str, BUFFER_SIZE, stdin) != NULL){
-		if(str[BUFFER_SIZE - 1] == '\0' && str[BUFFER_SIZE - 2] != '\n'){
-			fprintf(stderr, "That line was too long, flushing to new line");
-			int nom;
-			while((nom = fgetc(stdin)) != '\n' && nom != EOF); // munches to the end 
-			free(str);
-			str = NULL;	
-		}
-		else{
-			EnqueueString(q, str);
-		}
-	str = (char *) malloc(sizeof(char));
-	}
-	*/
 	return NULL;
 }
 
 void *firstMunch(void *tuple){
-    /*	
+    	
     struct Queue_Tuple *tup = tuple;
     char *line = DequeueString(tup->queue1);
-    do{ 
+    
+    while(line != NULL){ 
         char *idx = strchr(line, ' ');
         while (idx) {
-            *idx = '*';
+            idx = '*';
             idx = strchr(idx + 1, ' ');
         }
         EnqueueString(tup->queue2, line);
-    }while(line != NULL);
-    
-
-
-    
-    */
-   return NULL;
+	line = DequeueString(tup->queue1);
+    }
+    EnqueueString(tup->queue2, line);
+    return NULL;
 }
 
 void *secondMunch(void *tuple){
