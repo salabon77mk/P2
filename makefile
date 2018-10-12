@@ -1,6 +1,5 @@
 CC=gcc
-CFLAGS=-g -Wall -Wextra -pthread
-DEBUG=-g
+CFLAGS=-g -Wall -Wextra -lpthread
 DEPS = queue.h
 OBJ = main.o queue.o
 
@@ -15,7 +14,3 @@ prodcomm: $(OBJ)
 clean:
 		rm *.o prodcomm
 
-.PHONY: debug
-
-debug: $(OBJ)
-	$(CC) -o -g $@ $^ $(CFLAGS)

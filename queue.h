@@ -1,3 +1,6 @@
+#ifndef QUEUE_H
+#define QUEUE_H
+
 #include <semaphore.h>
 
 struct Queue {
@@ -20,3 +23,6 @@ char * DequeueString(struct Queue *queue);
 void PrintQueueStats(struct Queue *queue);
 int IsFull(struct Queue *queue);
 int IsEmpty(struct Queue *queue);
+void semCheck(int retVal);
+
+#endif
