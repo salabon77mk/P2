@@ -1,6 +1,6 @@
 #include <pthread.h>
 
-struct Queue {
+struct Queue{
     unsigned int head, tail, size;
     unsigned int capacity;
     unsigned int enqueueCount;

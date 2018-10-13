@@ -99,6 +99,8 @@ void *readStream(void *queue){
 		}
 	}
 	EnqueueString(q, NULL);
+	//Fixes potential memory leak warning from clang static analyzer
+	free(str);
 
 	return NULL;
 }
