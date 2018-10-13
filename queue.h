@@ -18,7 +18,4 @@ struct Queue *CreateStringQueue(unsigned int capacity);
 void EnqueueString(struct Queue *queue, char *string);
 char * DequeueString(struct Queue *queue);
 void PrintQueueStats(struct Queue *queue);
-static int IsFull(struct Queue *queue);
-static int IsEmpty(struct Queue *queue);
-static void pthreadCheck(int retVal);
 
