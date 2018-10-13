@@ -127,14 +127,11 @@ void *secondMunch(void *tuple){
     char *line = DequeueString(tup->queue1);
 
     while(line != NULL) {
-       
-	
         for(int i = 0; i < strlen(line); i++){
             int up = toupper(line[i]);
             line[i] = up;
         }
-	
-	
+		
 	EnqueueString(tup->queue2, line);
 
         line = DequeueString(tup->queue1);
