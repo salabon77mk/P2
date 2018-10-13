@@ -1,6 +1,7 @@
 #include "queue.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
 
 
 struct Queue *CreateStringQueue(unsigned int capacity){
@@ -10,22 +11,9 @@ struct Queue *CreateStringQueue(unsigned int capacity){
 		exit(-1); //Exit < 0 on any error
 	}
 
-		
-	if(sem_init(&(newQueue->mutex), 0, 1)){
-		fprintf(stderr, "Failed to init mutex in createStringQueue");
-		exit(-1);
-	}
-	
-	
-	if(sem_init(&(newQueue->tailLock), 0, 1)){
-		fprintf(stderr, "Failed to init tailLock in createStringQueue");
-		exit(-1);
-	}
-
-	if(sem_init(&(newQueue->headLock), 0, 1)){
-		fprintf(stderr, "Failed to init headLock in createStringQueue");
-		exit(-1);
-	}
+        pthread_mutex_init(&newQueue->mutex, NULL);	
+	pthread_cond_init(&newQueue->tailLock, NULL);
+	pthread_cond_init(&newQueue->headLock, NULL);
 
 	newQueue->lines = malloc(sizeof(char*) * capacity);
 	if(newQueue->lines == NULL){
@@ -47,59 +35,43 @@ struct Queue *CreateStringQueue(unsigned int capacity){
 }
 
 int IsFull(struct Queue *queue) {
-	if(queue->size == queue->capacity){
-		sem_post(&(queue->headLock));
-		return 1;
-	}
-	
-	return 0;
-//    return (queue->size == queue->capacity);
+    return (queue->size == queue->capacity);
 }
 
 int IsEmpty(struct Queue *queue) {
-	if(queue->size == 0){
-		sem_post(&(queue->tailLock));
-		return 1;
-	}
-	return 0;
-//    return (queue->size == 0);
+	return queue->size == 0;
 }
 
 void EnqueueString(struct Queue *queue, char *string) {
-     sem_wait(&(queue->mutex));
-
+	pthread_mutex_lock(&queue->mutex);
     while(IsFull(queue)) {
         queue->enqueueBlockCount = queue->enqueueBlockCount + 1;
-        sem_post(&(queue->mutex));
-	sem_wait(&(queue->headLock));
-     sem_wait(&(queue->mutex));
+	pthread_cond_wait(&queue->tailLock, &queue->mutex);
     } 
 
     queue->tail = (queue->tail + 1) % queue->capacity;
     queue->lines[queue->tail] = string;
     queue->size = queue->size + 1;
     queue->enqueueCount = queue->enqueueCount + 1;
-    sem_post(&(queue->mutex));
+    pthread_cond_signal(&(queue->headLock));
+    pthread_mutex_unlock(&queue->mutex);
     
 }
 
 char* DequeueString(struct Queue *queue) {
-     sem_wait(&(queue->mutex));
+    pthread_mutex_lock(&queue->mutex);
 
      while(IsEmpty(queue)) {
         queue->dequeueBlockCount = queue->dequeueBlockCount + 1;
-        sem_post(&(queue->mutex));
-	sem_wait(&(queue->tailLock));
-     sem_wait(&(queue->mutex));
+	pthread_cond_wait(&queue->headLock, &queue->mutex);
     }
 
     char* line = queue->lines[queue->head];
     queue->head = (queue->head + 1) % queue->capacity;
     queue->size = queue->size - 1;
     queue->dequeueCount = queue->dequeueCount + 1;
-    sem_post(&(queue->mutex));
-    
-
+    pthread_cond_signal(&(queue->tailLock));
+    pthread_mutex_unlock(&queue->mutex);
     return line;
 }
 
