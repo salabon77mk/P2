@@ -72,6 +72,7 @@ void EnqueueString(struct Queue *queue, char *string) {
         queue->enqueueBlockCount = queue->enqueueBlockCount + 1;
         sem_post(&(queue->mutex));
 	sem_wait(&(queue->headLock));
+     sem_wait(&(queue->mutex));
     } 
 
     queue->tail = (queue->tail + 1) % queue->capacity;
@@ -89,6 +90,7 @@ char* DequeueString(struct Queue *queue) {
         queue->dequeueBlockCount = queue->dequeueBlockCount + 1;
         sem_post(&(queue->mutex));
 	sem_wait(&(queue->tailLock));
+     sem_wait(&(queue->mutex));
     }
 
     char* line = queue->lines[queue->head];

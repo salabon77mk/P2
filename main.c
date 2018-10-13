@@ -61,6 +61,8 @@ int main(void){
 }
 
 void *readStream(void *queue){
+	
+
 	struct Queue *q = queue;
 	char *str = (char *) malloc(sizeof(char) * BUFFER_SIZE);
 	if(str == NULL){
@@ -75,16 +77,15 @@ void *readStream(void *queue){
 			fprintf(stderr, "That line is too long, flushing\n");
 			counter = 0;
 			memset(str, '\0', BUFFER_SIZE);
-			int ch;
-			while ((ch = fgetc(stdin)) != '\n'  && ch != EOF);
+			while ((currChar = fgetc(stdin)) != '\n'  && currChar != EOF);
 		}
 
 		// Reached new line char, time to enqueue
 		else if(currChar == '\n'){
 			str[counter] = currChar;
 			str[counter + 1] = '\0';
-			EnqueueString(q, str);
 			printf("INPUT: %s", str);
+			EnqueueString(q, str);
 			counter = 0;
 			str = (char *) malloc(sizeof(char) * BUFFER_SIZE);
 			if(str == NULL){
