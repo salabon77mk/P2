@@ -71,7 +71,7 @@ static int IsEmpty(struct Queue *queue) {
 }
 
 void EnqueueString(struct Queue *queue, char *string) {
-	pthread_mutex_lock(&queue->mutex);
+    Pthread_Mutex_Lock(&queue->mutex);
     while(IsFull(queue)) {
         queue->enqueueBlockCount = queue->enqueueBlockCount + 1;
 	Pthread_Cond_Wait(&queue->tailLock, &queue->mutex);
@@ -89,7 +89,7 @@ void EnqueueString(struct Queue *queue, char *string) {
 char* DequeueString(struct Queue *queue) {
     Pthread_Mutex_Lock(&queue->mutex);
 
-     while(IsEmpty(queue)) {
+    while(IsEmpty(queue)) {
         queue->dequeueBlockCount = queue->dequeueBlockCount + 1;
 	Pthread_Cond_Wait(&queue->headLock, &queue->mutex);
     }

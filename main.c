@@ -1,13 +1,12 @@
 #include <pthread.h>
 #include <stdio.h>
-#include <ctype.h>
 #include "queue.h"
 #include <string.h>
 #include <stdlib.h>
-#include <errno.h>
+#include <ctype.h>
 
 #ifndef BUFFER_SIZE
-#define BUFFER_SIZE 10
+#define BUFFER_SIZE 64
 #endif
 
 #ifndef CAPACITY
@@ -23,7 +22,7 @@ static void *firstMunch(void *tuple);
 static void *secondMunch(void *tuple);
 static void *writeOutput(void *queue);
 static void *readStream(void *queue);
-static void threadCreateCheck(int val);
+static void threadRetValCheck(int val);
 static struct Queue_Tuple *makeTuple(struct Queue *queue1, struct Queue *queue2);
 
 int main(void){
@@ -37,22 +36,29 @@ int main(void){
 	pthread_t reader, munch1, munch2, writer;
 
 	int createReader = pthread_create(&reader, NULL, readStream, munch1Queue);
-	threadCreateCheck(createReader);
-	
+	threadRetValCheck(createReader);
 	
 	int createMunch1 = pthread_create(&munch1, NULL, firstMunch, munch1_tuple);
-	threadCreateCheck(createMunch1);
+	threadRetValCheck(createMunch1);
 
 	int createMunch2 = pthread_create(&munch2, NULL, secondMunch, munch2_tuple);
-	threadCreateCheck(createMunch2);
+	threadRetValCheck(createMunch2);
 
 	int createWriter = pthread_create(&writer, NULL, writeOutput, writerQueue);
-	threadCreateCheck(createWriter);
+	threadRetValCheck(createWriter);
 
-	pthread_join(reader, NULL);
-	pthread_join(munch1, NULL);
-	pthread_join(munch2, NULL);
-	pthread_join(writer, NULL);
+
+	int joinReader = pthread_join(reader, NULL);
+	threadRetValCheck(joinReader);
+
+	int joinMunchOne = pthread_join(munch1, NULL);
+	threadRetValCheck(joinMunchOne);
+
+	int joinMunchTwo = pthread_join(munch2, NULL);
+	threadRetValCheck(joinMunchTwo);
+
+	int joinWriter = pthread_join(writer, NULL);
+	threadRetValCheck(joinWriter);
 
 	PrintQueueStats(munch1Queue);
 	PrintQueueStats(munch2Queue);
@@ -61,7 +67,6 @@ int main(void){
 }
 
 void *readStream(void *queue){
-	
 
 	struct Queue *q = queue;
 	char *str = (char *) malloc(sizeof(char) * BUFFER_SIZE);
@@ -84,7 +89,7 @@ void *readStream(void *queue){
 		else if(currChar == '\n'){
 			str[counter] = currChar;
 			str[counter + 1] = '\0';
-			printf("INPUT: %s", str);
+//			printf("INPUT: %s", str);
 			EnqueueString(q, str);
 			counter = 0;
 			str = (char *) malloc(sizeof(char) * BUFFER_SIZE);
@@ -93,6 +98,7 @@ void *readStream(void *queue){
 				exit(-1);
 			}
 		}
+		//Filling out the array index by index
 		else{
 			str[counter] = currChar;
 			counter++;
@@ -158,7 +164,8 @@ void *writeOutput(void *queue){
 	return NULL;
 }
 
-void threadCreateCheck(int val){
+void threadRetValCheck(int val){
+
 	if(val != 0){
 		fprintf(stderr, "Failed thread creation \n");
 		exit(-1);
@@ -166,6 +173,7 @@ void threadCreateCheck(int val){
 }
 
 struct Queue_Tuple *makeTuple(struct Queue *queue1, struct Queue *queue2){
+
 	struct Queue_Tuple *qtup = (struct Queue_Tuple*) malloc(sizeof(struct Queue_Tuple));
 	if(qtup == NULL){
 		fprintf(stderr, "Malloc failed at queue creation\n");
