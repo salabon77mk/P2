@@ -70,12 +70,10 @@ void EnqueueString(struct Queue *queue, char *string) {
 		fprintf(stderr, "Failed to unlock tailLock in EnqueueString, if(isFull)");
 		exit(-1);
 	}	
-    }
-    
+    } 
+
     queue->foot = (queue->foot + 1) % queue->capacity;
-    
     queue->lines[queue->foot] = string;
-    
     queue->size = queue->size + 1;
     queue->enqueueCount = queue->enqueueCount + 1;
     
