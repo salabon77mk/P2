@@ -4,7 +4,7 @@
 #include <semaphore.h>
 
 struct Queue {
-    unsigned int head, foot, size;
+    unsigned int head, tail, size;
     unsigned int capacity;
     unsigned int enqueueCount;
     unsigned int dequeueCount;

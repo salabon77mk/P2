@@ -84,7 +84,7 @@ void *readStream(void *queue){
 			str[counter] = currChar;
 			str[counter + 1] = '\0';
 			EnqueueString(q, str);
-			printf("%s", str);
+			printf("INPUT: %s", str);
 			counter = 0;
 			str = (char *) malloc(sizeof(char) * BUFFER_SIZE);
 			if(str == NULL){
@@ -127,13 +127,12 @@ void *secondMunch(void *tuple){
     char *line = DequeueString(tup->queue1);
 
     while(line != NULL) {
-        for(int i = 0; i < strlen(line); i++){
+        for(unsigned int i = 0; i < strlen(line); i++){
             int up = toupper(line[i]);
             line[i] = up;
         }
 		
 	EnqueueString(tup->queue2, line);
-
         line = DequeueString(tup->queue1);
     }
     EnqueueString(tup->queue2, line);

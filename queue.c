@@ -9,17 +9,20 @@ struct Queue *CreateStringQueue(unsigned int capacity){
 		fprintf(stderr, "Failed to malloc queue");
 		exit(-1); //Exit < 0 on any error
 	}
-	//Add checks to all of these + malloc with char *
+
+		
 	if(sem_init(&(newQueue->mutex), 0, 1)){
 		fprintf(stderr, "Failed to init mutex in createStringQueue");
 		exit(-1);
 	}
-	if(sem_init(&(newQueue->tailLock), 0, 0)){
+	
+	
+	if(sem_init(&(newQueue->tailLock), 0, 1)){
 		fprintf(stderr, "Failed to init tailLock in createStringQueue");
 		exit(-1);
 	}
 
-	if(sem_init(&(newQueue->headLock), 0, 0)){
+	if(sem_init(&(newQueue->headLock), 0, 1)){
 		fprintf(stderr, "Failed to init headLock in createStringQueue");
 		exit(-1);
 	}
@@ -31,7 +34,7 @@ struct Queue *CreateStringQueue(unsigned int capacity){
 	}
 
 	newQueue->head = 0;
-	newQueue->foot = capacity - 1;
+	newQueue->tail = capacity - 1;
 	newQueue->size = 0;
 	newQueue->capacity = capacity;
 
@@ -44,87 +47,57 @@ struct Queue *CreateStringQueue(unsigned int capacity){
 }
 
 int IsFull(struct Queue *queue) {
-    return (queue->size == queue->capacity);
+	if(queue->size == queue->capacity){
+		sem_post(&(queue->headLock));
+		return 1;
+	}
+	
+	return 0;
+//    return (queue->size == queue->capacity);
 }
 
 int IsEmpty(struct Queue *queue) {
-    return (queue->size == 0);
+	if(queue->size == 0){
+		sem_post(&(queue->tailLock));
+		return 1;
+	}
+	return 0;
+//    return (queue->size == 0);
 }
 
 void EnqueueString(struct Queue *queue, char *string) {
-    //implement locks
-    if(sem_wait(&(queue->mutex))){
-	fprintf(stderr, "Failed to lock mutex in EnqueueString");
-	exit(-1);
-    }
-    
-    if(IsFull(queue)) {
+     sem_wait(&(queue->mutex));
+
+    while(IsFull(queue)) {
         queue->enqueueBlockCount = queue->enqueueBlockCount + 1;
-
-	if(sem_post(&(queue->mutex))){
-		fprintf(stderr, "Failed to unlock mutex in EnqueueString, if(isFull)");
-		exit(-1);
-	}
-
-	if(sem_wait(&(queue->tailLock))){
-		fprintf(stderr, "Failed to unlock tailLock in EnqueueString, if(isFull)");
-		exit(-1);
-	}	
+        sem_post(&(queue->mutex));
+	sem_wait(&(queue->headLock));
     } 
 
-    queue->foot = (queue->foot + 1) % queue->capacity;
-    queue->lines[queue->foot] = string;
+    queue->tail = (queue->tail + 1) % queue->capacity;
+    queue->lines[queue->tail] = string;
     queue->size = queue->size + 1;
     queue->enqueueCount = queue->enqueueCount + 1;
+    sem_post(&(queue->mutex));
     
-    if(sem_post(&(queue->headLock))){
-	fprintf(stderr, "Failed to unlock headLock in EnqueueString");
-	exit(-1);	
-    }
-    if(sem_post(&(queue->mutex))){
-	fprintf(stderr, "Failed to unlock mutex in EnqueueString");
-	exit(-1);
-    }
 }
 
-//TODO ADD RETURN VALUE IF STATEMENTS FOR ALL SEM STATEMENTS
 char* DequeueString(struct Queue *queue) {
-    //implement locks
-    if(sem_wait(&(queue->mutex))){
-	fprintf(stderr, "Failed to lock mutex in EnqueueString");
-	exit(-1);
-    }
+     sem_wait(&(queue->mutex));
 
-
-    if (IsEmpty(queue)) {
+     while(IsEmpty(queue)) {
         queue->dequeueBlockCount = queue->dequeueBlockCount + 1;
-    
-	if(sem_wait(&(queue->mutex))){
-		fprintf(stderr, "Failed to unlock mutex in DequeueString: isEmpty");
-		exit(-1);
-    	}
-
-	if(sem_wait(&(queue->headLock))){		
-		fprintf(stderr, "Failed to unlock headLock in DequeueString: isEmpty");
-		exit(-1);
-	}
-        // BLOCK UNTIL THERE IS A LINE TO REMOVE
+        sem_post(&(queue->mutex));
+	sem_wait(&(queue->tailLock));
     }
 
     char* line = queue->lines[queue->head];
     queue->head = (queue->head + 1) % queue->capacity;
     queue->size = queue->size - 1;
     queue->dequeueCount = queue->dequeueCount + 1;
+    sem_post(&(queue->mutex));
     
 
-    if(sem_post(&(queue->tailLock))){
-		fprintf(stderr, "Failed to unlock tailLock in DequeueString");
-		exit(-1);
-    }
-    if(sem_post(&(queue->mutex))){
-		fprintf(stderr, "Failed to unlock mutex in DequeueString: isEmpty");
-		exit(-1);
-    }
     return line;
 }
 
