@@ -1,4 +1,9 @@
+/* AUtHORS
+ * Mykola Kusyy
+ * Garrett McLaughlin
+ */
 #include <pthread.h>
+
 
 struct Queue{
     unsigned int head, tail, size;

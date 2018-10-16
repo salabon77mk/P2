@@ -1,17 +1,18 @@
+/* AUtHORS
+ * Mykola Kusyy
+ * Garrett McLaughlin
+ */
+
 #include <pthread.h>
 #include <stdio.h>
-#include "queue.h"
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include "queue.h"
 
-#ifndef BUFFER_SIZE
-#define BUFFER_SIZE 64
-#endif
 
-#ifndef CAPACITY
-#define CAPACITY 10
-#endif
+static const int BUFFER_SIZE = 1024;
+static const int CAPACITY = 10;
 
 struct Queue_Tuple {
     struct Queue* queue1;

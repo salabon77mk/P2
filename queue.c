@@ -1,3 +1,8 @@
+/* AUtHORS
+ * Mykola Kusyy
+ * Garrett McLaughlin
+ */
+
 #include "queue.h"
 #include <stdio.h>
 #include <stdlib.h>
