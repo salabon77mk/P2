@@ -11,7 +11,7 @@
 #include "queue.h"
 
 
-static const int BUFFER_SIZE = 5;
+static const int BUFFER_SIZE = 1024;
 static const unsigned int CAPACITY = 10;
 
 struct Queue_Tuple {
