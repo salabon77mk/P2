@@ -155,17 +155,19 @@ void *secondMunch(void *tuple){
 
 
 void *writeOutput(void *queue){
-
+	unsigned int totalStrPrinted = 0;
 	struct Queue *writeQueue = queue;
 	char *printMe = DequeueString(writeQueue);
 
 	while(printMe != NULL){
 		printf("Output: %s", printMe);
+		totalStrPrinted++;
 		free(printMe);
 		printMe = NULL;
 		printMe = DequeueString(writeQueue);
 	}
-
+	
+	printf("Total strings processed: %u" totalStrPrinted);
 	return NULL;
 }
 
