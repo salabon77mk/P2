@@ -11,8 +11,8 @@
 #include "queue.h"
 
 
-static const int BUFFER_SIZE = 1024;
-static const int CAPACITY = 10;
+static const int BUFFER_SIZE = 5;
+static const unsigned int CAPACITY = 10;
 
 struct Queue_Tuple {
     struct Queue* queue1;
@@ -64,6 +64,8 @@ int main(void){
 	PrintQueueStats(munch1Queue);
 	PrintQueueStats(munch2Queue);
 	PrintQueueStats(writerQueue);
+
+	exit(0); // successful run
 	
 }
 
@@ -79,18 +81,20 @@ void *readStream(void *queue){
 	int currChar;
 	int counter = 0;
 	while((currChar = fgetc(stdin)) != EOF){
+		// Reasoning for check: 
+		// str[buffer - 2] is reserved for new line
+		// str[buffer - 1] is reserved for NULL
 		if(counter >= BUFFER_SIZE - 1){
 			fprintf(stderr, "That line is too long, flushing\n");
 			counter = 0;
-			memset(str, '\0', BUFFER_SIZE);
+			memset(str, '\0', BUFFER_SIZE); //reset values in string
 			while ((currChar = fgetc(stdin)) != '\n'  && currChar != EOF);
 		}
 
-		// Reached new line char, time to enqueue
+		// Reached new line char, time to enqueue, reset counter, alloc new string since old is now in queue
 		else if(currChar == '\n'){
 			str[counter] = currChar;
 			str[counter + 1] = '\0';
-//			printf("INPUT: %s", str);
 			EnqueueString(q, str);
 			counter = 0;
 			str = (char *) malloc(sizeof(char) * BUFFER_SIZE);
