@@ -167,7 +167,7 @@ void *writeOutput(void *queue){
 		printMe = DequeueString(writeQueue);
 	}
 	
-	printf("Total strings processed: %u" totalStrPrinted);
+	printf("Total strings processed: %u", totalStrPrinted);
 	return NULL;
 }
 
